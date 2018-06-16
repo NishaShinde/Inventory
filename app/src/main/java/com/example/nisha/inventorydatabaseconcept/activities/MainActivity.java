@@ -1,6 +1,7 @@
 package com.example.nisha.inventorydatabaseconcept.activities;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
         contentValues.put(InventoryContract.InventoryEntry.COLUMN_BRAND,brand.getText().toString());
 
         getContentResolver().insert(InventoryContract.CONTENT_URI,contentValues);
-        finish();
+        Intent intent = new Intent(this,Main2Activity.class);
+        startActivity(intent);
+       // finish();
     }
 }

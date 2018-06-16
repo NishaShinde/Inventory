@@ -19,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.nisha.inventorydatabaseconcept.Inventory;
 import com.example.nisha.inventorydatabaseconcept.R;
@@ -37,6 +36,9 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     private RecyclerView recyclerView;
     private InventoryRecyclerViewAdapter recyclerViewAdapter;
 
+    private int oldArraySize;
+    private int newArraySize;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +50,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Main2Activity.this,MainActivity.class);
+                Intent intent = new Intent(Main2Activity.this, MainActivity.class);
                 startActivity(intent);
 
             }
@@ -59,7 +61,10 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
 
-        recyclerViewAdapter = new InventoryRecyclerViewAdapter(inventoryArrayList);
+      //  recyclerViewAdapter = new InventoryRecyclerViewAdapter(inventoryArrayList);
+
+        oldArraySize = inventoryArrayList.size();
+
         recyclerView.setAdapter(recyclerViewAdapter);
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
@@ -82,27 +87,31 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
-        getSupportLoaderManager().initLoader(100,null,this);
+        getSupportLoaderManager().initLoader(100, null, this);
 
     }
 
     private void deleteItem(int adapterPosition) {
         int id = inventoryArrayList.get(adapterPosition).getId();
-        getContentResolver().delete(CONTENT_URI,InventoryContract.InventoryEntry.COLUMN_ID+" = ?",new String[]{String.valueOf(id)});
+        getContentResolver().delete(CONTENT_URI, InventoryContract.InventoryEntry.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
         recyclerViewAdapter.notifyItemRemoved(adapterPosition);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        return new CursorLoader(this,CONTENT_URI,null,null,null,InventoryContract.InventoryEntry.COLUMN_ID);
+        return new CursorLoader(this, CONTENT_URI, null, null, null, InventoryContract.InventoryEntry.COLUMN_ID);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        //data.moveToFirst();
-        inventoryArrayList.clear();
-        if(data!=null) {
+        data.moveToFirst();
+
+        InventoryRecyclerViewAdapter adapter = new InventoryRecyclerViewAdapter(data);
+        recyclerView.setAdapter(adapter);
+
+       /* if (data != null) {
+            inventoryArrayList.clear();
             while (data.moveToNext()) {
 
                 int columnIndexProductName = data.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_PRODUCT_NAME);
@@ -120,17 +129,28 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                 String productBrand = data.getString(columnIndexProductBrand);
                 int id = data.getInt(columnIndexProductId);
 
-                Inventory inventory = new Inventory(prodcutName, productQuantitiy, productPrice, productUnit, productBrand,id);
+                Inventory inventory = new Inventory(prodcutName, productQuantitiy, productPrice, productUnit, productBrand, id);
                 inventoryArrayList.add(inventory);
 
             }
 
-            recyclerView.setAdapter(new InventoryRecyclerViewAdapter(inventoryArrayList));
+            newArraySize = inventoryArrayList.size();
+
+
+        } else {
+            Toast.makeText(Main2Activity.this, "Data not avaialble", Toast.LENGTH_SHORT).show();
         }
-//recyclerViewAdapter.notifyDataSetChanged();}
-else {
-            Toast.makeText(Main2Activity.this,"Data not avaialble",Toast.LENGTH_SHORT).show();
-        }
+
+        if(oldArraySize + 1 == newArraySize) {
+            // Meaning - only one element added
+            recyclerViewAdapter.notifyItemInserted(newArraySize);
+        } else if (newArraySize != 0){
+            recyclerViewAdapter.notifyDataSetChanged();
+            oldArraySize = newArraySize;
+        } else {
+            recyclerViewAdapter.notifyDataSetChanged();
+        }*/
+
     }
 
     @Override
