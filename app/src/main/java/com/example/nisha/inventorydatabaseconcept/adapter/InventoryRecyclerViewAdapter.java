@@ -1,6 +1,7 @@
 package com.example.nisha.inventorydatabaseconcept.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,16 +10,17 @@ import android.widget.TextView;
 
 import com.example.nisha.inventorydatabaseconcept.Inventory;
 import com.example.nisha.inventorydatabaseconcept.R;
-
-import java.util.ArrayList;
+import com.example.nisha.inventorydatabaseconcept.data.InventoryContract;
 
 public class InventoryRecyclerViewAdapter  extends
         RecyclerView.Adapter<InventoryRecyclerViewAdapter.ViewHolder> {
 
-    ArrayList<Inventory> inventoryArrayList;
+    //ArrayList<Inventory> inventoryArrayList;
+    Cursor data;
 
-    public InventoryRecyclerViewAdapter(ArrayList<Inventory> inventoryList){
-       inventoryArrayList = inventoryList;
+    public InventoryRecyclerViewAdapter(Cursor cursor){
+       //inventoryArrayList = inventoryList;
+        this.data = cursor;
     }
 
     @Override
@@ -37,8 +39,24 @@ public class InventoryRecyclerViewAdapter  extends
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
 
-         Inventory inventory = inventoryArrayList.get(position);
+        data.moveToPosition(position);
+            int columnIndexProductName = data.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_PRODUCT_NAME);
+            int columnIndexProductPrice = data.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_PRICE);
+            int columnIndexProductQuantity = data.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_QUANTITY);
+            int columnIndexProductUnit = data.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_UNIT);
+            int columnIndexProductBrand = data.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_BRAND);
+            int columnIndexProductId = data.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_ID);
 
+
+            String prodcutName = data.getString(columnIndexProductName);
+            String productUnit = data.getString(columnIndexProductUnit);
+            double productPrice = data.getDouble(columnIndexProductPrice);
+            int productQuantitiy = data.getInt(columnIndexProductQuantity);
+            String productBrand = data.getString(columnIndexProductBrand);
+            int id = data.getInt(columnIndexProductId);
+
+            Inventory inventory = new Inventory(prodcutName, productQuantitiy, productPrice, productUnit, productBrand, id);
+            //Inventory inventory = inventoryArrayList.get(position);
         // Set item views based on your views and data model
         TextView textView = viewHolder.nameTextView;
         textView.setText(inventory.getProduct_name());
@@ -48,7 +66,7 @@ public class InventoryRecyclerViewAdapter  extends
     }
     @Override
     public int getItemCount() {
-        return inventoryArrayList.size();
+        return data.getCount();
     }
 
     // Provide a direct reference to each of the views within a data item
